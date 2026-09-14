@@ -1,0 +1,56 @@
+services:
+  minio:
+    image: minio/minio:latest
+
+    container_name: resumable-minio
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+
+    command: server /data --console-address ":9001"
+
+    volumes:
+      - minio_data:/data
+
+  server:
+    build:
+      context: ./server
+
+    container_name: resumable-server
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      - minio
+
+    environment:
+      PORT: 3000
+
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+
+      MINIO_BUCKET: resumable-uploads
+
+  client:
+    build:
+      context: ./client
+
+    container_name: resumable-client
+
+    ports:
+      - "5173:5173"
+
+    depends_on:
+      - server
+
+volumes:
+  minio_data:
