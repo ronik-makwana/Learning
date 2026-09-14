@@ -1,0 +1,47 @@
+services:
+
+  minio:
+    image: minio/minio:latest
+    container_name: large-file-minio
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+
+    volumes:
+      - minio_data:/data
+
+    command: server /data --console-address ":9001"
+
+
+  server:
+    build: ./server
+    container_name: large-file-server
+
+    ports:
+      - "5001:5001"
+
+    env_file:
+      - ./server/.env
+
+    depends_on:
+      - minio
+
+
+  client:
+    build: ./client
+    container_name: large-file-client
+
+    ports:
+      - "5173:5173"
+
+    depends_on:
+      - server
+
+
+volumes:
+  minio_data:
