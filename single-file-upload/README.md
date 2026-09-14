@@ -9,7 +9,7 @@ The application allows a user to select a single image file from the browser and
 ## Project Structure
 
 ```text
-01-single-file/
+single-file-upload/
 │
 ├── client/
 │   ├── src/
